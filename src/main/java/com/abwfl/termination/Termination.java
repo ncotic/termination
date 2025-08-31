@@ -5,14 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
@@ -34,19 +28,12 @@ public class Termination {
     public static final String MODID = "termination";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public Termination(FMLJavaModLoadingContext modLoadingContext) {
-        IEventBus modEventBus = modLoadingContext.getModEventBus();
+    public Termination() {
         terminationList = new TerminationList(TERMINATION_FILE);
-
-        modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(TerminationHandler.class);
 
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
-
     }
 
     public record TerminationListEntry(String player, List<String> terminatedEntities) {}
@@ -131,21 +118,6 @@ public class Termination {
             return entries.stream()
                     .filter(e -> e.player().equals(playerName))
                     .anyMatch(e -> e.terminatedEntities().contains(entityString));
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.DEDICATED_SERVER)
-    public static class ServerModEvents {
-
-        @SubscribeEvent
-        public void onLivingChangeTarget(LivingChangeTargetEvent event) {
-            LOGGER.info(event.toString());
-            if (event.getNewTarget().getType() == EntityType.PLAYER) {
-                if (terminationList.shouldHideEntity(event.getNewTarget().getStringUUID(), event.getEntity().getType())) {
-                    LOGGER.info("Can cancel: {}", event.isCancelable() ? "true" : "false");
-                    event.setCanceled(true);
-                }
-            }
         }
     }
 }
