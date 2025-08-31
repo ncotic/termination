@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.abwfl.termination.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "termination.refmap.json",
+  "mixins": [
+    "MobMixin",
+    "TrackedEntityMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
